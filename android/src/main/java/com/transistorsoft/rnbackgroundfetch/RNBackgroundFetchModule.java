@@ -101,7 +101,7 @@ public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implemen
 
     @Override
     public void onHostResume() {
-        if (!initialized) {
+        if (!initialized && isMainActivity()) {
             initializeBackgroundFetch();
         }
     }
@@ -116,13 +116,14 @@ public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implemen
 
     @Override
     public void onHostDestroy() {
-        LifecycleManager.getInstance().setHeadless(true);
-        initialized = false;
+        if (isMainActivity()) {
+            LifecycleManager.getInstance().setHeadless(true);
+            initialized = false;
+        }
     }
 
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
-
     }
 
     private BackgroundFetchConfig.Builder buildConfig(ReadableMap options) {
@@ -178,8 +179,15 @@ public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implemen
         initialized = true;
     }
 
+    private boolean isMainActivity() {
+        Activity currentActivity = getCurrentActivity();
+        if (currentActivity == null) {
+            return false; // No activity is currently active
+        }
+        return currentActivity.getClass().getSimpleName().equals("MainActivity");
+    }
+
     private BackgroundFetch getAdapter() {
         return BackgroundFetch.getInstance(getReactApplicationContext());
     }
-
 }
