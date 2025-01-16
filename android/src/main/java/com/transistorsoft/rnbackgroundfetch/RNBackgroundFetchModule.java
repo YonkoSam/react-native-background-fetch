@@ -101,22 +101,28 @@ public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implemen
 
     @Override
     public void onHostResume() {
+        Log.d(TAG, "onHostResume called.");
         if (!initialized && isMainActivity()) {
+            Log.d(TAG, "Initializing background fetch in onHostResume.");
             initializeBackgroundFetch();
         }
     }
 
     @Override
     public void onHostPause() {
+        Log.d(TAG, "onHostPause called.");
     }
 
     @Override
     public void onNewIntent(Intent intent) {
+        Log.d(TAG, "onNewIntent called.");
     }
 
     @Override
     public void onHostDestroy() {
+        Log.d(TAG, "onHostDestroy called.");
         if (isMainActivity()) {
+            Log.d(TAG, "Setting headless mode and resetting initialization flag.");
             LifecycleManager.getInstance().setHeadless(true);
             initialized = false;
         }
@@ -124,6 +130,7 @@ public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implemen
 
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult called.");
     }
 
     private BackgroundFetchConfig.Builder buildConfig(ReadableMap options) {
@@ -174,17 +181,22 @@ public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implemen
     private void initializeBackgroundFetch() {
         Activity activity = getCurrentActivity();
         if (activity == null) {
+            Log.d(TAG, "No activity is currently active. Skipping initialization.");
             return;
         }
+        Log.d(TAG, "Initializing background fetch for activity: " + activity.getClass().getSimpleName());
         initialized = true;
     }
 
     private boolean isMainActivity() {
         Activity currentActivity = getCurrentActivity();
         if (currentActivity == null) {
+            Log.d(TAG, "No activity is currently active.");
             return false; // No activity is currently active
         }
-        return currentActivity.getClass().getSimpleName().equals("MainActivity");
+        String activityName = currentActivity.getClass().getSimpleName();
+        Log.d(TAG, "Current activity: " + activityName);
+        return activityName.equals("MainActivity");
     }
 
     private BackgroundFetch getAdapter() {
